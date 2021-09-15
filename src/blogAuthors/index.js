@@ -8,53 +8,74 @@
 //IMPORTS
 import { Router } from "express";
 import fs from "fs";
-import { join } from "path";
+import { fileURLToPath } from "url";
+import { join, dirname } from "path";
 import uniqid from "uniqid";
 
 //CONNECT PATH WITH JSON
-const cwd = process.cwd();
-console.log("cwd= " + cwd);
-const blogAuthorFilePath = join(cwd, "/src/blogAuthors/authors.json");
+const blogAuthorFilePath = join(
+  dirname(fileURLToPath(import.meta.url)),
+  "authors.json"
+);
+console.log("BlogAuthorFilePath", blogAuthorFilePath);
+
+// const cwd = process.cwd();
+// const blogAuthorFilePath2 = join(cwd, "/src/blogAuthors/authors.json");
+// console.log("BlogAuthorFilePath2", blogAuthorFilePath2);
 
 //ROUTER CONST
+const getBlogAuthors = () => JSON.parse(fs.readFileSync(blogAuthorFilePath));
+const writeBlogAuthors = (content) => {
+  fs.writeFileSync(blogAuthorFilePath, JSON.stringify(content));
+};
 const blogAuthorRoute = Router();
 
+//// GET ALL
 blogAuthorRoute.get("/", (req, res) => {
-  const blogAuthorContent = fs.readFileSync(blogAuthorFilePath);
-  const blogAuthorArray = JSON.parse(blogAuthorContent);
-  res.send(blogAuthorArray);
+  const blogAuthors = getBlogAuthors();
+  res.send(blogAuthors);
 });
 
+//// POST
 blogAuthorRoute.post("/", (req, res) => {
-  const blogAuthorContent = fs.readFileSync(blogAuthorFilePath);
-  console.log("Content:" + blogAuthorContent);
-  const blogAuthorArray = JSON.parse(blogAuthorContent.toString());
-  console.log("Array:" + blogAuthorArray);
-
-  // const newBlogAuthor = { ...req.body, id: uniqid() };
-  // console.log(newBlogAuthor);
-
-  // blogAuthorArray.push(newBlogAuthor);
-
-  fs.writeFileSync(
-    blogAuthorFilePath,
-    JSON.stringify([...blogAuthorArray, { id: uniqid(), ...req.body }])
-  );
-  // res.send(blogAuthorArray);
-
-  res.status(201).send(blogAuthorArray);
+  const blogAuthors = getBlogAuthors();
+  const newBlogAuthor = { ...req.body, id: uniqid() };
+  blogAuthors.push(newBlogAuthor);
+  writeBlogAuthors(blogAuthors);
+  res.send(blogAuthors);
 });
 
-blogAuthorRoute.post("/:id", (req, res) => {
-  const blogAuthorContent = fs.readFileSync(blogAuthorFilePath);
-  const blogAuthorArray = JSON.parse(blogAuthorContent.toString());
-
-  const blogAuthor = blogAuthorArray.find(
-    (author) => author.id === req.params.id
-  );
-  if (author) {
-    res.send(author);
+//// GET ID
+blogAuthorRoute.get("/:id", (req, res) => {
+  const blogAuthors = getBlogAuthors();
+  const blogAuthor = blogAuthors.find((author) => author.id === req.params.id);
+  if (blogAuthor) {
+    res.send(blogAuthor);
   }
+});
+
+//// PUT
+blogAuthorRoute.put("/:id", (req, res) => {
+  const blogAuthors = getBlogAuthors();
+  const index = blogAuthors.findIndex((author) => author.id === req.params.id);
+  let authorToBeAltered = blogAuthors[index];
+  const newDetails = req.body;
+
+  const updatedAuthor = { ...authorToBeAltered, ...newDetails };
+  blogAuthors[index] = updatedAuthor;
+  writeBlogAuthors(blogAuthors);
+
+  res.send(updatedAuthor);
+});
+
+//// DELETE
+blogAuthorRoute.delete("/:id", (req, res) => {
+  const blogAuthors = getBlogAuthors();
+  const filteredBlogAuthors = blogAuthors.filter(
+    (author) => author.id !== req.params.id
+  );
+  writeBlogAuthors(filteredBlogAuthors);
+  res.status(204).send();
 });
 
 //EXPORT ROUTER CONST
