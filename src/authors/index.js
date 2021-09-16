@@ -1,8 +1,9 @@
 import { Router } from "express";
-import fs from "fs";
+import fs from "fs-extra";
 import { fileURLToPath } from "url";
 import { join, dirname } from "path";
 import uniqid from "uniqid";
+import { uploadFile, parseFile } from "../utils/upload/index.js";
 
 //CONNECT PATH WITH JSON
 const blogAuthorFilePath = join(
@@ -70,28 +71,28 @@ blogAuthorRoute.delete("/:id", (req, res) => {
   res.status(204).send();
 });
 
-////Upload File
-// blogAuthorRoute.post("/:id/uploadAvatar", (req, res) => {
-//   const blogAuthors = getBlogAuthors();
-//   const blogAuthor = blogAuthors.find((author) => author.id === req.params.id);
-// });
+blogAuthorRoute.put(
+  "/:id/uploadavatar",
+  parseFile.single("authoravatar"),
+  uploadFile,
+  async (req, res, next) => {
+    try {
+      const blogAuthors = getBlogAuthors();
+      const index = blogAuthors.findIndex(
+        (author) => author.id === req.params.id
+      );
+      let authorToBeAltered = blogAuthors[index];
+      const newAvatar = { avatar: req.file };
 
-// blogAuthorRoute.post(
-//   "/:id/uploadAvatar",
-//   multer().single("idOfTheAuthor"),
-//   async (req, res, next) => {
-//     try {
-//       // const blogAuthors = getBlogAuthors();
-//       // const blogAuthor = blogAuthors.find(
-//       //   (author) => author.id === req.params.id
-//       // );
-//       await uploadAvatar(req.file.originalname, file.buffer);
-//       res.send("Ok");
-//     } catch (error) {
-//       next(error);
-//     }
-//   }
-// );
+      const updatedAuthor = { ...authorToBeAltered, ...newAvatar };
+      blogAuthors[index] = updatedAuthor;
+      writeBlogAuthors(blogAuthors);
 
-//EXPORT ROUTER CONST
+      res.send(updatedAuthor);
+    } catch (error) {
+      next(error);
+    }
+  }
+);
+
 export default blogAuthorRoute;

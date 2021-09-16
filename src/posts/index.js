@@ -1,6 +1,6 @@
 //IMPORTS
 import { Router } from "express";
-import fs from "fs";
+import fs from "fs-extra";
 import { fileURLToPath } from "url";
 import { join, dirname } from "path";
 import uniqid from "uniqid";

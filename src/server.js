@@ -3,9 +3,7 @@ import cors from "cors";
 import blogPostRoute from "./posts/index.js";
 import blogAuthorRoute from "./authors/index.js";
 import filesRouter from "./files/index.js";
-//DAY 4 Hw
-// import uploadAvatarRoute from "";
-// import uploadCoverRoute from "";
+import { join } from "path";
 
 import {
   badRequestErrorHandler,
@@ -17,7 +15,11 @@ import {
 const server = express();
 const port = 3001;
 
+const publicFilePath = join(process.cwd(), "public");
+
 // Place for our globalmiddlewares
+
+server.use(express.static(publicFilePath));
 
 server.use(cors());
 server.use(express.json());

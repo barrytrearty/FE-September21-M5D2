@@ -1,1 +1,10 @@
-[{"name":"John","surname":"Foe","email":"john@doe.com","dateOfBirth":"9/3/95","avatar":"https://ui-avatars.com/api/?name=John+Doe","id":"81c424ktmpjsk9"}]
+[
+  {
+    "name": "John",
+    "surname": "Foe",
+    "email": "john@doe.com",
+    "dateOfBirth": "9/3/95",
+    "avatar": "https://ui-avatars.com/api/?name=John+Doe",
+    "id": "81c424ktmpjsk9"
+  }
+]
