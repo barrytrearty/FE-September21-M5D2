@@ -4,7 +4,23 @@
     "surname": "Foe",
     "email": "john@doe.com",
     "dateOfBirth": "9/3/95",
-    "avatar": "https://ui-avatars.com/api/?name=John+Doe",
+    "avatar": "http://localhost:3001/81c424ktmpjsk9.jpg",
     "id": "81c424ktmpjsk9"
+  },
+  {
+    "name": "Doe",
+    "surname": "Foe",
+    "email": "john@doe.com",
+    "dateOfBirth": "9/3/95",
+    "avatar": "http://localhost:3001/81c424ktmpjsk9.jpg",
+    "id": "81c4q8ktokpn3m"
+  },
+  {
+    "name": "John",
+    "surname": "Foe",
+    "email": "john@doe.com",
+    "dateOfBirth": "9/3/95",
+    "id": "81c1m0ktomt171",
+    "avatar": "http://localhost:3001/81c1m0ktomt171.jpg"
   }
 ]

@@ -4,7 +4,10 @@ import fs from "fs-extra";
 import { fileURLToPath } from "url";
 import { join, dirname } from "path";
 import uniqid from "uniqid";
+import { uploadFileToBlogPosts, parseFile } from "../utils/upload/index.js";
 import createHttpError from "http-errors";
+import { validationResult } from "express-validator";
+import { blogPostValidation } from "./validation.js";
 
 //CONNECT PATH WITH JSON
 const blogPostFilePath = join(
@@ -25,7 +28,7 @@ const writeBlogPosts = (content) => {
 const blogPostRoute = Router();
 
 //// GET ALL
-blogPostRoute.get("/", (req, res) => {
+blogPostRoute.get("/", (req, res, next) => {
   try {
     const blogPosts = getBlogPosts();
     res.send(blogPosts);
@@ -36,13 +39,18 @@ blogPostRoute.get("/", (req, res) => {
 });
 
 //// POST
-blogPostRoute.post("/", (req, res) => {
+blogPostRoute.post("/", blogPostValidation, (req, res, next) => {
   try {
-    const blogPosts = getBlogPosts();
-    const newBlogPost = { ...req.body, _id: uniqid(), createdAt: new Date() };
-    blogPosts.push(newBlogPost);
-    writeBlogPosts(blogPosts);
-    res.send(blogPosts);
+    const errorsList = validationResult(req);
+    if (!errorsList.isEmpty()) {
+      next(createHttpError(400, { errorsList }));
+    } else {
+      const blogPosts = getBlogPosts();
+      const newBlogPost = { ...req.body, _id: uniqid(), createdAt: new Date() };
+      blogPosts.push(newBlogPost);
+      writeBlogPosts(blogPosts);
+      res.send(blogPosts);
+    }
   } catch (error) {
     next(error);
     // res.send(500).send({ message: error.message });
@@ -50,7 +58,7 @@ blogPostRoute.post("/", (req, res) => {
 });
 
 //// GET ID
-blogPostRoute.get("/:id", (req, res) => {
+blogPostRoute.get("/:id", (req, res, next) => {
   try {
     const blogPosts = getBlogPosts();
     const blogPost = blogPosts.find((Post) => Post._id === req.params.id);
@@ -65,7 +73,7 @@ blogPostRoute.get("/:id", (req, res) => {
 });
 
 //// PUT
-blogPostRoute.put("/:id", (req, res) => {
+blogPostRoute.put("/:id", (req, res, next) => {
   try {
     const blogPosts = getBlogPosts();
     const index = blogPosts.findIndex((Post) => Post._id === req.params.id);
@@ -83,7 +91,7 @@ blogPostRoute.put("/:id", (req, res) => {
 });
 
 //// DELETE
-blogPostRoute.delete("/:id", (req, res) => {
+blogPostRoute.delete("/:id", (req, res, next) => {
   try {
     const blogPosts = getBlogPosts();
     const filteredBlogPosts = blogPosts.filter(
@@ -91,6 +99,71 @@ blogPostRoute.delete("/:id", (req, res) => {
     );
     writeBlogPosts(filteredBlogPosts);
     res.status(204).send();
+  } catch (error) {
+    next(error);
+  }
+});
+
+//ADDING COVER PHOTO
+
+blogPostRoute.put(
+  "/:id/uploadCover",
+  parseFile.single("blogPostCover"),
+  uploadFileToBlogPosts,
+  async (req, res, next) => {
+    try {
+      const blogPosts = getBlogPosts();
+      const index = blogPosts.findIndex((Post) => Post._id === req.params.id);
+      let postToBeAltered = blogPosts[index];
+      const newCover = { cover: req.file };
+
+      const updatedPost = { ...postToBeAltered, ...newCover };
+      blogPosts[index] = updatedPost;
+      writeBlogPosts(blogPosts);
+
+      res.send(updatedPost);
+    } catch (error) {
+      console.log(error);
+      next(error);
+    }
+  }
+);
+
+// GETTING COMMENTS
+blogPostRoute.get("/:id/comments", (req, res, next) => {
+  try {
+    const blogPosts = getBlogPosts();
+    const blogPost = blogPosts.find((Post) => Post._id === req.params.id);
+    if (blogPost) {
+      blogPost.comments = blogPost.comments || [];
+      res.send(blogPost.comments);
+    } else {
+      next(createHttpError(404, `blogPost/${req.params.id} not found`));
+    }
+  } catch (error) {
+    next(error);
+  }
+});
+
+// POSTING COMMENTS
+blogPostRoute.put("/:id/comments", (req, res, next) => {
+  try {
+    const blogPosts = getBlogPosts();
+    const index = blogPosts.findIndex((Post) => Post._id === req.params.id);
+    let postBeforeNewComment = blogPosts[index];
+    postBeforeNewComment.comments = postBeforeNewComment.comments || [];
+
+    const { text, userName } = req.body;
+
+    const postWithNewComment = {
+      ...postBeforeNewComment,
+      comments: [...postBeforeNewComment.comments, { text, userName }],
+    };
+    blogPosts[index] = postWithNewComment;
+
+    writeBlogPosts(blogPosts);
+
+    res.send(postWithNewComment);
   } catch (error) {
     next(error);
   }
