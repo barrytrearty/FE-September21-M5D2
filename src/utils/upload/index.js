@@ -12,10 +12,12 @@ export const uploadFileToAuthors = (req, res, next) => {
     const { originalname, buffer } = req.file;
     const extension = extname(originalname);
     const fileName = `${req.params.id}${extension}`;
+    console.log(fileName);
     const pathToFile = join(publicPathToAuthors, fileName);
     fs.writeFileSync(pathToFile, buffer);
     const link = `http://localhost:3001/${fileName}`;
     req.file = link;
+    console.log(link);
     next();
     // console.log(req.file);
     // console.log(publicPathToAuthors);
@@ -28,12 +30,15 @@ export const uploadFileToAuthors = (req, res, next) => {
 export const uploadFileToBlogPosts = (req, res, next) => {
   try {
     const { originalname, buffer } = req.file;
+    // console.log({ originalname: originalname });
     const extension = extname(originalname);
     const fileName = `${req.params.id}${extension}`;
+    console.log(fileName);
     const pathToFile = join(publicPathToBlogPosts, fileName);
     fs.writeFileSync(pathToFile, buffer);
     const link = `http://localhost:3001/${fileName}`;
     req.file = link;
+    console.log(link);
     next();
     // console.log(req.file);
     // console.log(publicPathToBlogPosts);

@@ -110,11 +110,12 @@ blogPostRoute.put(
   "/:id/uploadCover",
   parseFile.single("blogPostCover"),
   uploadFileToBlogPosts,
-  async (req, res, next) => {
+  (req, res, next) => {
     try {
       const blogPosts = getBlogPosts();
       const index = blogPosts.findIndex((Post) => Post._id === req.params.id);
       let postToBeAltered = blogPosts[index];
+      console.log(`Hello ${req.file}`);
       const newCover = { cover: req.file };
 
       const updatedPost = { ...postToBeAltered, ...newCover };
