@@ -9,6 +9,9 @@ import uniqid from "uniqid";
 import createHttpError from "http-errors";
 import { validationResult } from "express-validator";
 import { blogPostValidation } from "./validation.js";
+//for uploading files to cloud services
+import { v2 as cloudinary } from "cloudinary";
+import { CloudinaryStorage } from "multer-storage-cloudinary";
 
 const { readJSON, writeJSON, writeFile } = fs;
 
@@ -24,6 +27,15 @@ const getBlogPosts = () => readJSON(blogPostFilePath);
 const writeBlogPosts = (content) => writeJSON(blogPostFilePath, content);
 
 const blogPostRoute = Router();
+
+///////////CLOUDINARY STORAGE UPLOAD
+
+const cloudinaryStorage = new CloudinaryStorage({
+  cloudinary,
+  params: {
+    folder: "blogPosts",
+  },
+});
 
 //// GET ALL
 blogPostRoute.get("/", async (req, res, next) => {
@@ -131,6 +143,37 @@ blogPostRoute.put(
       res.send(updatedPost);
     } catch (error) {
       console.log(error);
+      next(error);
+    }
+  }
+);
+
+blogPostRoute.post(
+  "/cloudinaryUpload",
+  multer({ storage: cloudinaryStorage }).single("blogPostCover"),
+  async (req, res, next) => {
+    try {
+      const { originalname, buffer } = req.file;
+      const extension = extname(originalname);
+      const fileName = `${req.params.id}${extension}`;
+      // console.log(publicFolderPath);
+      const pathToFile = join(coverFolderPath, fileName);
+      // const pathToFile = join(publicFolderPath, fileName);
+      await fs.writeFile(pathToFile, buffer);
+
+      const blogPosts = await getBlogPosts();
+      const index = blogPosts.findIndex((Post) => Post._id === req.params.id);
+      let postToBeAltered = blogPosts[index];
+
+      const link = `https://striveblogbt.herokuapp.com/img/blogPosts/${fileName}`;
+      req.file = link;
+      const newCover = { cover: req.file };
+      const updatedPost = { ...postToBeAltered, ...newCover };
+
+      blogPosts[index] = updatedPost;
+      await writeBlogPosts(blogPosts);
+      res.send(updatedPost);
+    } catch (error) {
       next(error);
     }
   }
