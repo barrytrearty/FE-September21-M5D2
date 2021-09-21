@@ -7,6 +7,7 @@ import { uploadFileToAuthors, parseFile } from "../utils/upload/index.js";
 import createHttpError from "http-errors";
 import { authorValidation } from "./validation.js";
 import { validationResult } from "express-validator";
+import multer from "multer";
 
 //CONNECT PATH WITH JSON
 const authorFilePath = join(
@@ -102,7 +103,7 @@ authorRoute.delete("/:id", (req, res, next) => {
 
 authorRoute.put(
   "/:id/uploadAvatar",
-  parseFile.single("authorAvatar"),
+  multer().single("authorAvatar"),
   uploadFileToAuthors,
   async (req, res, next) => {
     try {

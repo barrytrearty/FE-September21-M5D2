@@ -1,55 +1,56 @@
 //IMPORTS
 import { Router } from "express";
 import fs from "fs-extra";
+import multer from "multer";
 import { fileURLToPath } from "url";
-import { join, dirname } from "path";
+import { join, dirname, extname } from "path";
 import uniqid from "uniqid";
-import { uploadFileToBlogPosts, parseFile } from "../utils/upload/index.js";
+// import { uploadFileToBlogPosts, parseFile } from "../utils/upload/index.js";
 import createHttpError from "http-errors";
 import { validationResult } from "express-validator";
 import { blogPostValidation } from "./validation.js";
+
+const { readJSON, writeJSON, writeFile } = fs;
 
 //CONNECT PATH WITH JSON
 const blogPostFilePath = join(
   dirname(fileURLToPath(import.meta.url)),
   "posts.json"
 );
-console.log("BlogPostFilePath", blogPostFilePath);
 
-// const cwd = process.cwd();
-// const blogPostFilePath2 = join(cwd, "/src/blogPosts/Posts.json");
-// console.log("BlogPostFilePath2", blogPostFilePath2);
+// const coverFolderPath = join(process.cwd(), "./public/img/blogPosts");
+const publicFolderPath = join(process.cwd(), "./public");
 
-//ROUTER CONST
-const getBlogPosts = () => JSON.parse(fs.readFileSync(blogPostFilePath));
-const writeBlogPosts = (content) => {
-  fs.writeFileSync(blogPostFilePath, JSON.stringify(content));
-};
+const getBlogPosts = () => readJSON(blogPostFilePath);
+// const writeBlogPosts = (content) => {
+//   fs.writeFile(blogPostFilePath, JSON.stringify(content));
+// };
+const writeBlogPosts = (content) => writeJSON(blogPostFilePath, content);
 const blogPostRoute = Router();
 
 //// GET ALL
-blogPostRoute.get("/", (req, res, next) => {
+blogPostRoute.get("/", async (req, res, next) => {
   try {
-    const blogPosts = getBlogPosts();
+    const blogPosts = await getBlogPosts();
     res.send(blogPosts);
   } catch (error) {
-    nest(error);
+    next(error);
     // res.send(500).send({ message: error.message });
   }
 });
 
 //// POST
-blogPostRoute.post("/", blogPostValidation, (req, res, next) => {
+blogPostRoute.post("/", blogPostValidation, async (req, res, next) => {
   try {
     const errorsList = validationResult(req);
     if (!errorsList.isEmpty()) {
       next(createHttpError(400, { errorsList }));
     } else {
-      const blogPosts = getBlogPosts();
+      const blogPosts = await getBlogPosts();
       const newBlogPost = { ...req.body, _id: uniqid(), createdAt: new Date() };
       blogPosts.push(newBlogPost);
       writeBlogPosts(blogPosts);
-      res.send(blogPosts);
+      res.send(newBlogPost);
     }
   } catch (error) {
     next(error);
@@ -58,9 +59,9 @@ blogPostRoute.post("/", blogPostValidation, (req, res, next) => {
 });
 
 //// GET ID
-blogPostRoute.get("/:id", (req, res, next) => {
+blogPostRoute.get("/:id", async (req, res, next) => {
   try {
-    const blogPosts = getBlogPosts();
+    const blogPosts = await getBlogPosts();
     const blogPost = blogPosts.find((Post) => Post._id === req.params.id);
     if (blogPost) {
       res.send(blogPost);
@@ -73,9 +74,9 @@ blogPostRoute.get("/:id", (req, res, next) => {
 });
 
 //// PUT
-blogPostRoute.put("/:id", (req, res, next) => {
+blogPostRoute.put("/:id", async (req, res, next) => {
   try {
-    const blogPosts = getBlogPosts();
+    const blogPosts = await getBlogPosts();
     const index = blogPosts.findIndex((Post) => Post._id === req.params.id);
     let postToBeAltered = blogPosts[index];
     const newDetails = req.body;
@@ -91,9 +92,9 @@ blogPostRoute.put("/:id", (req, res, next) => {
 });
 
 //// DELETE
-blogPostRoute.delete("/:id", (req, res, next) => {
+blogPostRoute.delete("/:id", async (req, res, next) => {
   try {
-    const blogPosts = getBlogPosts();
+    const blogPosts = await getBlogPosts();
     const filteredBlogPosts = blogPosts.filter(
       (post) => post._id !== req.params.id
     );
@@ -106,22 +107,29 @@ blogPostRoute.delete("/:id", (req, res, next) => {
 
 //ADDING COVER PHOTO
 
-blogPostRoute.put(
+blogPostRoute.post(
   "/:id/uploadCover",
-  parseFile.single("blogPostCover"),
-  uploadFileToBlogPosts,
-  (req, res, next) => {
+  multer().single("blogPostCover"),
+  async (req, res, next) => {
     try {
-      const blogPosts = getBlogPosts();
+      const { originalname, buffer } = req.file;
+      const extension = extname(originalname);
+      const fileName = `${req.params.id}${extension}`;
+      console.log(publicFolderPath);
+      const pathToFile = join(publicFolderPath, fileName);
+      await fs.writeFile(pathToFile, buffer);
+
+      const blogPosts = await getBlogPosts();
       const index = blogPosts.findIndex((Post) => Post._id === req.params.id);
       let postToBeAltered = blogPosts[index];
-      console.log(`Hello ${req.file}`);
+
+      const link = `http://localhost:3001/${fileName}`;
+      req.file = link;
       const newCover = { cover: req.file };
-
       const updatedPost = { ...postToBeAltered, ...newCover };
-      blogPosts[index] = updatedPost;
-      writeBlogPosts(blogPosts);
 
+      blogPosts[index] = updatedPost;
+      await writeBlogPosts(blogPosts);
       res.send(updatedPost);
     } catch (error) {
       console.log(error);
@@ -131,9 +139,9 @@ blogPostRoute.put(
 );
 
 // GETTING COMMENTS
-blogPostRoute.get("/:id/comments", (req, res, next) => {
+blogPostRoute.get("/:id/comments", async (req, res, next) => {
   try {
-    const blogPosts = getBlogPosts();
+    const blogPosts = await getBlogPosts();
     const blogPost = blogPosts.find((Post) => Post._id === req.params.id);
     if (blogPost) {
       blogPost.comments = blogPost.comments || [];
@@ -147,9 +155,9 @@ blogPostRoute.get("/:id/comments", (req, res, next) => {
 });
 
 // POSTING COMMENTS
-blogPostRoute.put("/:id/comments", (req, res, next) => {
+blogPostRoute.put("/:id/comments", async (req, res, next) => {
   try {
-    const blogPosts = getBlogPosts();
+    const blogPosts = await getBlogPosts();
     const index = blogPosts.findIndex((Post) => Post._id === req.params.id);
     let postBeforeNewComment = blogPosts[index];
     postBeforeNewComment.comments = postBeforeNewComment.comments || [];

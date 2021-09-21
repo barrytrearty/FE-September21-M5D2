@@ -1,6 +1,6 @@
 import { join, extname } from "path";
 import multer from "multer";
-import fs from "fs";
+import fs from "fs-extra";
 
 const publicPathToAuthors = join(process.cwd(), "./public/img/authors");
 const publicPathToBlogPosts = join(process.cwd(), "./public/img/blogPosts");
@@ -14,7 +14,7 @@ export const uploadFileToAuthors = (req, res, next) => {
     const fileName = `${req.params.id}${extension}`;
     console.log(fileName);
     const pathToFile = join(publicPathToAuthors, fileName);
-    fs.writeFileSync(pathToFile, buffer);
+    fs.writeFile(pathToFile, buffer);
     const link = `http://localhost:3001/${fileName}`;
     req.file = link;
     console.log(link);
@@ -40,9 +40,6 @@ export const uploadFileToBlogPosts = (req, res, next) => {
     req.file = link;
     console.log(link);
     next();
-    // console.log(req.file);
-    // console.log(publicPathToBlogPosts);
-    // res.send("OK");
   } catch (error) {
     next(error);
   }
