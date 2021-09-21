@@ -149,7 +149,7 @@ blogPostRoute.put(
 );
 
 blogPostRoute.post(
-  "/cloudinaryUpload",
+  "/:id/cloudinaryUpload",
   multer({ storage: cloudinaryStorage }).single("blogPostCover"),
   async (req, res, next) => {
     try {
