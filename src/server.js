@@ -13,7 +13,7 @@ import {
 } from "./errorhandlers.js";
 
 const server = express();
-const port = process.env.PORT;
+const port = process.env.PORT || 3001;
 // const port = 3001;
 
 const publicFilePath = join(process.cwd(), "public");
