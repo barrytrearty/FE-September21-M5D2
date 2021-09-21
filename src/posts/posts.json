@@ -54,7 +54,7 @@
   {
     "category": "Category4",
     "title": "Rappers Delight",
-    "cover": "http://localhost:3001/81cew4ktsv9mnb.jpg",
+    "cover": "public/81c5voktu0u03o.jpg",
     "readTime": { "value": 2, "unit": "minute" },
     "author": {
       "name": "Barry Trearty",
