@@ -18,14 +18,11 @@ const blogPostFilePath = join(
   "posts.json"
 );
 
-// const coverFolderPath = join(process.cwd(), "./public/img/blogPosts");
-const publicFolderPath = join(process.cwd(), "./public");
+const coverFolderPath = join(process.cwd(), "./public/img/blogPosts");
 
 const getBlogPosts = () => readJSON(blogPostFilePath);
-// const writeBlogPosts = (content) => {
-//   fs.writeFile(blogPostFilePath, JSON.stringify(content));
-// };
 const writeBlogPosts = (content) => writeJSON(blogPostFilePath, content);
+
 const blogPostRoute = Router();
 
 //// GET ALL
@@ -107,7 +104,7 @@ blogPostRoute.delete("/:id", async (req, res, next) => {
 
 //ADDING COVER PHOTO
 
-blogPostRoute.post(
+blogPostRoute.put(
   "/:id/uploadCover",
   multer().single("blogPostCover"),
   async (req, res, next) => {
@@ -115,15 +112,16 @@ blogPostRoute.post(
       const { originalname, buffer } = req.file;
       const extension = extname(originalname);
       const fileName = `${req.params.id}${extension}`;
-      console.log(publicFolderPath);
-      const pathToFile = join(publicFolderPath, fileName);
+      // console.log(publicFolderPath);
+      const pathToFile = join(coverFolderPath, fileName);
+      // const pathToFile = join(publicFolderPath, fileName);
       await fs.writeFile(pathToFile, buffer);
 
       const blogPosts = await getBlogPosts();
       const index = blogPosts.findIndex((Post) => Post._id === req.params.id);
       let postToBeAltered = blogPosts[index];
 
-      const link = `http://localhost:3001/${fileName}`;
+      const link = `http://localhost:3001/img/blogPosts/${fileName}`;
       req.file = link;
       const newCover = { cover: req.file };
       const updatedPost = { ...postToBeAltered, ...newCover };

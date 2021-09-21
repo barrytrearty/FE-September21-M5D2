@@ -13,15 +13,30 @@ import {
 } from "./errorhandlers.js";
 
 const server = express();
-const port = 3001;
+const port = process.env.PORT;
+// const port = 3001;
 
 const publicFilePath = join(process.cwd(), "public");
 
 // Place for our globalmiddlewares
 
-server.use(express.static(publicFilePath));
+//CORS: Cross-Origin Resource Sharing
 
-server.use(cors());
+const whiteList = [process.env.FRONT_DEV_URL, process.env.FRONT_PROD_URL];
+
+const corsOptions = {
+  origin: function (origin, next) {
+    console.log("CURRENT ORIGIN: ", origin);
+    if (!origin || whiteList.indexOf(origin) !== -1) {
+      next(null, true);
+    } else {
+      next(new Error(`Origin ${origin} not allowed!`));
+    }
+  },
+};
+
+server.use(express.static(publicFilePath));
+server.use(cors(corsOptions));
 server.use(express.json());
 
 // Place for our routes
