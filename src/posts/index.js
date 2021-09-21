@@ -153,24 +153,24 @@ blogPostRoute.post(
   multer({ storage: cloudinaryStorage }).single("blogPostCover"),
   async (req, res, next) => {
     try {
-      const { originalname, buffer } = req.file;
-      const extension = extname(originalname);
-      const fileName = `${req.params.id}${extension}`;
-      // console.log(publicFolderPath);
-      const pathToFile = join(coverFolderPath, fileName);
-      // const pathToFile = join(publicFolderPath, fileName);
-      await fs.writeFile(pathToFile, buffer);
+      // const { originalname, buffer } = req.file;
+      // const extension = extname(originalname);
+      // const fileName = `${req.params.id}${extension}`;
+      // // console.log(publicFolderPath);
+      // const pathToFile = join(coverFolderPath, fileName);
+      // // const pathToFile = join(publicFolderPath, fileName);
+      // await fs.writeFile(pathToFile, buffer);
 
-      const blogPosts = await getBlogPosts();
-      const index = blogPosts.findIndex((Post) => Post._id === req.params.id);
-      let postToBeAltered = blogPosts[index];
+      // const blogPosts = await getBlogPosts();
+      // const index = blogPosts.findIndex((Post) => Post._id === req.params.id);
+      // let postToBeAltered = blogPosts[index];
 
-      const link = `https://striveblogbt.herokuapp.com/img/blogPosts/${fileName}`;
-      req.file = link;
-      const newCover = { cover: req.file };
-      const updatedPost = { ...postToBeAltered, ...newCover };
+      // const link = `https://striveblogbt.herokuapp.com/img/blogPosts/${fileName}`;
+      // req.file = link;
+      // const newCover = { cover: req.file };
+      // const updatedPost = { ...postToBeAltered, ...newCover };
 
-      blogPosts[index] = updatedPost;
+      // blogPosts[index] = updatedPost;
       await writeBlogPosts(blogPosts);
       res.send(updatedPost);
     } catch (error) {
