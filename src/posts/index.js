@@ -121,7 +121,7 @@ blogPostRoute.put(
       const index = blogPosts.findIndex((Post) => Post._id === req.params.id);
       let postToBeAltered = blogPosts[index];
 
-      const link = `http://localhost:3001/img/blogPosts/${fileName}`;
+      const link = `https://striveblogbt.herokuapp.com/img/blogPosts/${fileName}`;
       req.file = link;
       const newCover = { cover: req.file };
       const updatedPost = { ...postToBeAltered, ...newCover };
