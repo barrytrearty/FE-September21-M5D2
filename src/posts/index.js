@@ -171,7 +171,7 @@ blogPostRoute.post(
       // const updatedPost = { ...postToBeAltered, ...newCover };
 
       // blogPosts[index] = updatedPost;
-      await writeBlogPosts(blogPosts);
+      // await writeBlogPosts(blogPosts);
       res.send(updatedPost);
     } catch (error) {
       next(error);
