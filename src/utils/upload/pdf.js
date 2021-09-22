@@ -12,13 +12,23 @@ export const getPdfReadableStream = (blogObject) => {
 
   const docDefinition = {
     content: [
-      blogObject.category,
-      blogObject.title,
-      blogObject.author.name,
-      blogObject.content,
-      blogObject.readTime.value,
-      blogObject.readTime.unit,
+      { text: blogObject.category, style: "subHeader" },
+      { text: blogObject.title, style: "header" },
+      { text: blogObject.author.name, style: "subHeader" },
+      { text: blogObject.content },
     ],
+    styles: {
+      header: {
+        fontSize: 18,
+        bold: true,
+        margin: 10,
+      },
+      subHeader: {
+        fontSize: 13,
+        bold: true,
+        margin: 10,
+      },
+    },
   };
 
   //   const options = {
