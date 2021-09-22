@@ -12,6 +12,9 @@ import { blogPostValidation } from "./validation.js";
 //for uploading files to cloud services
 import { v2 as cloudinary } from "cloudinary";
 import { CloudinaryStorage } from "multer-storage-cloudinary";
+import { getPdfReadableStream } from "../utils/upload/pdf.js";
+import { pipeline } from "stream";
+// import html2canvas from "html2canvas";
 
 const { readJSON, writeJSON, writeFile } = fs;
 
@@ -75,7 +78,8 @@ blogPostRoute.get("/:id", async (req, res, next) => {
     if (blogPost) {
       res.send(blogPost);
     } else {
-      next(createHttpError(404, `blogPost/${req.params.id} not found`));
+      next(console.log(`blogPosts/${req.params.id} not found`));
+      // next(createHttpError(404, `blogPosts/${req.params.id} not found`));
     }
   } catch (error) {
     next(error);
@@ -179,6 +183,28 @@ blogPostRoute.post(
   }
 );
 
+blogPostRoute.get("/:id/PDFDownload", async (req, res, next) => {
+  try {
+    const blogPosts = await getBlogPosts();
+    const blogPost = blogPosts.find((Post) => Post._id === req.params.id);
+    if (blogPost) {
+      res.setHeader("Content-Disposition", "attachment; filename=example.pdf");
+
+      const source = getPdfReadableStream(blogPost);
+      const destination = res;
+      // const transform = html2canvas();
+
+      pipeline(source, destination, (err) => {
+        if (err) next(err);
+      });
+    } else {
+      next(createHttpError(404, `blogPosts/${req.params.id} not found`));
+    }
+  } catch (error) {
+    next(error);
+  }
+});
+
 // GETTING COMMENTS
 blogPostRoute.get("/:id/comments", async (req, res, next) => {
   try {
@@ -188,7 +214,7 @@ blogPostRoute.get("/:id/comments", async (req, res, next) => {
       blogPost.comments = blogPost.comments || [];
       res.send(blogPost.comments);
     } else {
-      next(createHttpError(404, `blogPost/${req.params.id} not found`));
+      next(createHttpError(404, `blogPosts/${req.params.id} not found`));
     }
   } catch (error) {
     next(error);
