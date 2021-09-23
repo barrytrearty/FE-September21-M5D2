@@ -7,13 +7,17 @@ import { uploadFileToAuthors, parseFile } from "../utils/upload/index.js";
 import createHttpError from "http-errors";
 import { authorValidation } from "./validation.js";
 import { validationResult } from "express-validator";
+import { pipeline } from "stream";
 import multer from "multer";
+import json2csv from "json2csv";
 
 //CONNECT PATH WITH JSON
 const authorFilePath = join(
   dirname(fileURLToPath(import.meta.url)),
   "authors.json"
 );
+const getAuthorsReadableStrean = () => fs.createReadStream(authorFilePath); // For CSV Download
+
 console.log("authorFilePath", authorFilePath);
 
 // const cwd = process.cwd();
@@ -123,5 +127,23 @@ authorRoute.put(
     }
   }
 );
+
+authorRoute.get("/CSVDownload", async (req, res, next) => {
+  try {
+    res.setHeader("Content-Disposition", "attachment; filename=books.csv");
+
+    const source = getAuthorsReadableStrean();
+    const transform = new json2csv.Transform({
+      fields: ["name", "surname", "avatar", "email", "dateOfBirth", "id"],
+    });
+    const destination = res;
+
+    pipeline(source, transform, destination, (err) => {
+      if (err) next(err);
+    });
+  } catch (error) {
+    next(error);
+  }
+});
 
 export default authorRoute;

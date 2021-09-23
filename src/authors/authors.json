@@ -1,1 +1,54 @@
-[{"name":"John","surname":"Foe","email":"john@doe.com","dateOfBirth":"9/3/95","avatar":"http://localhost:3001/81c424ktmpjsk9.jpg","id":"81c424ktmpjsk9"},{"name":"Doe","surname":"Foe","email":"john@doe.com","dateOfBirth":"9/3/95","avatar":"http://localhost:3001/81c424ktmpjsk9.jpg","id":"81c4q8ktokpn3m"},{"name":"John","surname":"Foe","email":"john@doe.com","dateOfBirth":"9/3/95","id":"81c1m0ktomt171","avatar":"http://localhost:3001/81c1m0ktomt171.jpg"},{"name":"Barry","surname":"Trearty","email":"btrearty@gmail.com","avatar":"https://coursereport-production.imgix.net/uploads/school/logo/1045/original/Strive_-_logosquareblack.png?w=200&h=200&dpr=1&q=75","id":"81c2bwktpr4qk3"},{"name":"Don","surname":"Moe","email":"don@moe.com","avatar":"https://coursereport-production.imgix.net/uploads/school/logo/1045/original/Strive_-_logosquareblack.png?w=200&h=200&dpr=1&q=75","id":"81c2bwktpryrf2"},{"name":"Testy","surname":"McTesterson","email":"test@testface.com","avatar":"https://coursereport-production.imgix.net/uploads/school/logo/1045/original/Strive_-_logosquareblack.png?w=200&h=200&dpr=1&q=75","id":"81c2bwktps9zba"},{"name":"Testy","surname":"McTesterson","email":"test@testface.com","avatar":"http://localhost:3001/81c2bwktq5l7ty.jpg","id":"81c2bwktq5l7ty"}]
+[
+  {
+    "name": "John",
+    "surname": "Foe",
+    "email": "john@doe.com",
+    "dateOfBirth": "9/3/95",
+    "avatar": "http://localhost:3001/81c424ktmpjsk9.jpg",
+    "id": "81c424ktmpjsk9"
+  },
+  {
+    "name": "Doe",
+    "surname": "Foe",
+    "email": "john@doe.com",
+    "dateOfBirth": "9/3/95",
+    "avatar": "http://localhost:3001/81c424ktmpjsk9.jpg",
+    "id": "81c4q8ktokpn3m"
+  },
+  {
+    "name": "John",
+    "surname": "Foe",
+    "email": "john@doe.com",
+    "dateOfBirth": "9/3/95",
+    "id": "81c1m0ktomt171",
+    "avatar": "http://localhost:3001/81c1m0ktomt171.jpg"
+  },
+  {
+    "name": "Barry",
+    "surname": "Trearty",
+    "email": "btrearty@gmail.com",
+    "avatar": "https://coursereport-production.imgix.net/uploads/school/logo/1045/original/Strive_-_logosquareblack.png?w=200&h=200&dpr=1&q=75",
+    "id": "81c2bwktpr4qk3"
+  },
+  {
+    "name": "Don",
+    "surname": "Moe",
+    "email": "don@moe.com",
+    "avatar": "https://coursereport-production.imgix.net/uploads/school/logo/1045/original/Strive_-_logosquareblack.png?w=200&h=200&dpr=1&q=75",
+    "id": "81c2bwktpryrf2"
+  },
+  {
+    "name": "Testy",
+    "surname": "McTesterson",
+    "email": "test@testface.com",
+    "avatar": "https://coursereport-production.imgix.net/uploads/school/logo/1045/original/Strive_-_logosquareblack.png?w=200&h=200&dpr=1&q=75",
+    "id": "81c2bwktps9zba"
+  },
+  {
+    "name": "Testy",
+    "surname": "McTesterson",
+    "email": "test@testface.com",
+    "avatar": "http://localhost:3001/81c2bwktq5l7ty.jpg",
+    "id": "81c2bwktq5l7ty"
+  }
+]

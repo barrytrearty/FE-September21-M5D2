@@ -118,6 +118,46 @@ blogPostRoute.delete("/:id", async (req, res, next) => {
   }
 });
 
+// GETTING COMMENTS
+blogPostRoute.get("/:id/comments", async (req, res, next) => {
+  try {
+    const blogPosts = await getBlogPosts();
+    const blogPost = blogPosts.find((Post) => Post._id === req.params.id);
+    if (blogPost) {
+      blogPost.comments = blogPost.comments || [];
+      res.send(blogPost.comments);
+    } else {
+      next(createHttpError(404, `blogPosts/${req.params.id} not found`));
+    }
+  } catch (error) {
+    next(error);
+  }
+});
+
+// POSTING COMMENTS
+blogPostRoute.put("/:id/comments", async (req, res, next) => {
+  try {
+    const blogPosts = await getBlogPosts();
+    const index = blogPosts.findIndex((Post) => Post._id === req.params.id);
+    let postBeforeNewComment = blogPosts[index];
+    postBeforeNewComment.comments = postBeforeNewComment.comments || [];
+
+    const { text, userName } = req.body;
+
+    const postWithNewComment = {
+      ...postBeforeNewComment,
+      comments: [...postBeforeNewComment.comments, { text, userName }],
+    };
+    blogPosts[index] = postWithNewComment;
+
+    writeBlogPosts(blogPosts);
+
+    res.send(postWithNewComment);
+  } catch (error) {
+    next(error);
+  }
+});
+
 //ADDING COVER PHOTO
 
 blogPostRoute.put(
@@ -188,46 +228,6 @@ blogPostRoute.get("/:id/PDFDownload", async (req, res, next) => {
     } else {
       next(createHttpError(404, `blogPosts/${req.params.id} not found`));
     }
-  } catch (error) {
-    next(error);
-  }
-});
-
-// GETTING COMMENTS
-blogPostRoute.get("/:id/comments", async (req, res, next) => {
-  try {
-    const blogPosts = await getBlogPosts();
-    const blogPost = blogPosts.find((Post) => Post._id === req.params.id);
-    if (blogPost) {
-      blogPost.comments = blogPost.comments || [];
-      res.send(blogPost.comments);
-    } else {
-      next(createHttpError(404, `blogPosts/${req.params.id} not found`));
-    }
-  } catch (error) {
-    next(error);
-  }
-});
-
-// POSTING COMMENTS
-blogPostRoute.put("/:id/comments", async (req, res, next) => {
-  try {
-    const blogPosts = await getBlogPosts();
-    const index = blogPosts.findIndex((Post) => Post._id === req.params.id);
-    let postBeforeNewComment = blogPosts[index];
-    postBeforeNewComment.comments = postBeforeNewComment.comments || [];
-
-    const { text, userName } = req.body;
-
-    const postWithNewComment = {
-      ...postBeforeNewComment,
-      comments: [...postBeforeNewComment.comments, { text, userName }],
-    };
-    blogPosts[index] = postWithNewComment;
-
-    writeBlogPosts(blogPosts);
-
-    res.send(postWithNewComment);
   } catch (error) {
     next(error);
   }
