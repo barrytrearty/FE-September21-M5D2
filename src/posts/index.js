@@ -14,6 +14,7 @@ import { v2 as cloudinary } from "cloudinary";
 import { CloudinaryStorage } from "multer-storage-cloudinary";
 import { getPdfReadableStream } from "../utils/upload/pdf.js";
 import { pipeline } from "stream";
+import { sendEmail } from "./email.js";
 // import html2canvas from "html2canvas";
 
 const { readJSON, writeJSON, writeFile } = fs;
@@ -52,23 +53,23 @@ blogPostRoute.get("/", async (req, res, next) => {
 });
 
 //// POST
-blogPostRoute.post("/", blogPostValidation, async (req, res, next) => {
-  try {
-    const errorsList = validationResult(req);
-    if (!errorsList.isEmpty()) {
-      next(createHttpError(400, { errorsList }));
-    } else {
-      const blogPosts = await getBlogPosts();
-      const newBlogPost = { ...req.body, _id: uniqid(), createdAt: new Date() };
-      blogPosts.push(newBlogPost);
-      writeBlogPosts(blogPosts);
-      res.send(newBlogPost);
-    }
-  } catch (error) {
-    next(error);
-    // res.send(500).send({ message: error.message });
-  }
-});
+// blogPostRoute.post("/", blogPostValidation, async (req, res, next) => {
+//   try {
+//     const errorsList = validationResult(req);
+//     if (!errorsList.isEmpty()) {
+//       next(createHttpError(400, { errorsList }));
+//     } else {
+//       const blogPosts = await getBlogPosts();
+//       const newBlogPost = { ...req.body, _id: uniqid(), createdAt: new Date() };
+//       blogPosts.push(newBlogPost);
+//       writeBlogPosts(blogPosts);
+//       res.send(newBlogPost);
+//     }
+//   } catch (error) {
+//     next(error);
+//     // res.send(500).send({ message: error.message });
+//   }
+// });
 
 //// GET ID
 blogPostRoute.get("/:id", async (req, res, next) => {
@@ -230,6 +231,22 @@ blogPostRoute.get("/:id/PDFDownload", async (req, res, next) => {
     }
   } catch (error) {
     next(error);
+  }
+});
+
+blogPostRoute.post("/", async (req, res, next) => {
+  try {
+    const blogPosts = await getBlogPosts();
+    const newBlogPost = { ...req.body, _id: uniqid(), createdAt: new Date() };
+
+    blogPosts.push(newBlogPost);
+    writeBlogPosts(blogPosts);
+    const { content } = req.body;
+    await sendEmail(content);
+    res.send("EMAIL SENT");
+  } catch (error) {
+    next(error);
+    // res.send(500).send({ message: error.message });
   }
 });
 
