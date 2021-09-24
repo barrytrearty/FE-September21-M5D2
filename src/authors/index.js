@@ -77,6 +77,28 @@ authorRoute.get("/:id", async (req, res, next) => {
   }
 });
 
+authorRoute.get("/param1/param2", async (req, res, next) => {
+  try {
+    // console.log(req);
+    console.log(authorFilePath);
+    res.setHeader("Content-Disposition", "attachment; filename=books.csv");
+
+    const source = getAuthorsReadableStrean();
+    // console.log(source);
+    const transform = new json2csv.Transform({
+      // fields: ["name", "surname", "avatar", "email", "dateOfBirth", "id"],
+      fields: ["name", "surname"],
+    });
+    console.log(transform);
+
+    pipeline(source, transform, res, (err) => {
+      if (err) next(err);
+    });
+  } catch (error) {
+    next(error);
+  }
+});
+
 //// PUT
 authorRoute.put("/:id", async (req, res, next) => {
   try {
@@ -144,17 +166,17 @@ authorRoute.put(
   }
 );
 
-authorRoute.get("/CSVDownload", async (req, res, next) => {
-  console.log("hello");
+authorRoute.get("/param1", async (req, res, next) => {
   try {
-    console.log(req);
+    // console.log(req);
     console.log(authorFilePath);
     res.setHeader("Content-Disposition", "attachment; filename=books.csv");
 
     const source = getAuthorsReadableStrean();
-    console.log(source);
+    // console.log(source);
     const transform = new json2csv.Transform({
-      fields: ["name", "surname", "avatar", "email", "dateOfBirth", "id"],
+      // fields: ["name", "surname", "avatar", "email", "dateOfBirth", "id"],
+      fields: ["name", "surname"],
     });
     console.log(transform);
 
