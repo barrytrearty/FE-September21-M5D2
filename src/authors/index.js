@@ -45,6 +45,28 @@ authorRoute.get("/", async (req, res, next) => {
   }
 });
 
+authorRoute.get("/param1", async (req, res, next) => {
+  try {
+    // console.log(req);
+    console.log(authorFilePath);
+    res.setHeader("Content-Disposition", "attachment; filename=books.csv");
+
+    const source = getAuthorsReadableStrean();
+    // console.log(source);
+    const transform = new json2csv.Transform({
+      // fields: ["name", "surname", "avatar", "email", "dateOfBirth", "id"],
+      fields: ["name", "surname"],
+    });
+    console.log(transform);
+
+    pipeline(source, transform, res, (err) => {
+      if (err) next(err);
+    });
+  } catch (error) {
+    next(error);
+  }
+});
+
 //// POST
 authorRoute.post("/", authorValidation, async (req, res, next) => {
   try {
@@ -72,28 +94,6 @@ authorRoute.get("/:id", async (req, res, next) => {
     if (author) {
       res.send(author);
     }
-  } catch (error) {
-    next(error);
-  }
-});
-
-authorRoute.get("/param1/param2", async (req, res, next) => {
-  try {
-    // console.log(req);
-    console.log(authorFilePath);
-    res.setHeader("Content-Disposition", "attachment; filename=books.csv");
-
-    const source = getAuthorsReadableStrean();
-    // console.log(source);
-    const transform = new json2csv.Transform({
-      // fields: ["name", "surname", "avatar", "email", "dateOfBirth", "id"],
-      fields: ["name", "surname"],
-    });
-    console.log(transform);
-
-    pipeline(source, transform, res, (err) => {
-      if (err) next(err);
-    });
   } catch (error) {
     next(error);
   }
@@ -165,27 +165,5 @@ authorRoute.put(
     }
   }
 );
-
-authorRoute.get("/param1", async (req, res, next) => {
-  try {
-    // console.log(req);
-    console.log(authorFilePath);
-    res.setHeader("Content-Disposition", "attachment; filename=books.csv");
-
-    const source = getAuthorsReadableStrean();
-    // console.log(source);
-    const transform = new json2csv.Transform({
-      // fields: ["name", "surname", "avatar", "email", "dateOfBirth", "id"],
-      fields: ["name", "surname"],
-    });
-    console.log(transform);
-
-    pipeline(source, transform, res, (err) => {
-      if (err) next(err);
-    });
-  } catch (error) {
-    next(error);
-  }
-});
 
 export default authorRoute;
